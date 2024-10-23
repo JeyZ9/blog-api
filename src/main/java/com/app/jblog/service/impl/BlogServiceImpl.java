@@ -3,7 +3,13 @@ package com.app.jblog.service.impl;
 import com.app.jblog.models.Blog;
 import com.app.jblog.repository.BlogRepository;
 import com.app.jblog.service.BlogService;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +31,9 @@ public class BlogServiceImpl implements BlogService {
     private String uploadDir;
 
     private BlogRepository blogRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     public BlogServiceImpl(BlogRepository blogRepository) {
@@ -67,6 +76,18 @@ public class BlogServiceImpl implements BlogService {
     public Optional<Blog> getBlogById(Long id){
         Optional<Blog> blog = blogRepository.findById(id);
         return blog;
+    }
+
+    @Override
+    public List<Blog> getBlogByField(String fieldName, String fieldValue){
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Blog> query = cb.createQuery(Blog.class);
+        Root<Blog> blog = query.from(Blog.class);
+
+        Predicate predicate = cb.equal(blog.get(fieldName), fieldValue);
+
+        query.select(blog).where(predicate);
+        return entityManager.createQuery(query).getResultList();
     }
 
     @Override

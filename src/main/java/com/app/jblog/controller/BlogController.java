@@ -1,7 +1,6 @@
 package com.app.jblog.controller;
 
 import com.app.jblog.models.Blog;
-import com.app.jblog.repository.BlogRepository;
 import com.app.jblog.service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,21 +9,24 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/blogs")
+@RequestMapping("/api/v1/blogs")
 public class BlogController {
 
     private final BlogService blogService;
-    private final BlogRepository blogRepository;
 
     @Autowired
-    public BlogController(BlogService blogService, BlogRepository blogRepository) {
+    public BlogController(BlogService blogService) {
         this.blogService = blogService;
-        this.blogRepository = blogRepository;
     }
+
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
 
     @GetMapping
     public ResponseEntity<List<Blog>> getAllBlog(){
@@ -39,17 +41,26 @@ public class BlogController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @GetMapping("/{field}/{value}")
+    public ResponseEntity<List<Blog>> getBlogByField(@PathVariable String field, @PathVariable String value) {
+        List<Blog> blog = blogService.getBlogByField(field, value);
+        return ResponseEntity.ok(blog);
+    }
+
+
     @PostMapping
     public ResponseEntity<Blog> addBlog(
             @RequestParam String name,
             @RequestParam String description,
             @RequestParam MultipartFile image,
+//            @RequestParam(required = false) Date dateTime,
             @RequestParam String field
     ) throws IOException {
         Blog blog = new Blog();
         blog.setName(name);
         blog.setDescription(description);
         blog.setImage(String.valueOf(image));
+        blog.setDateTime(sdf.format(new Date()));
         blog.setField(field);
 
         Blog addBlog = blogService.createBlog(blog, image);
@@ -68,6 +79,7 @@ public class BlogController {
         getBlog.setName(name);
         getBlog.setDescription(description);
         getBlog.setImage(String.valueOf(image));
+        getBlog.setDateTime(sdf.format(new Date()));
         getBlog.setField(field);
 
         Blog updateBlog = blogService.updateBlog(id, getBlog, image);
@@ -75,7 +87,7 @@ public class BlogController {
         return ResponseEntity.ok(updateBlog);
     }
 
-    @DeleteMapping("/{id")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBlog(@PathVariable Long id) {
         blogService.deleteBlog(id);
         return ResponseEntity.noContent().build();

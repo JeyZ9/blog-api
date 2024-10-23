@@ -12,6 +12,8 @@ public interface BlogService {
 
     Optional<Blog> getBlogById(Long id);
 
+    List<Blog> getBlogByField(String fieldName, String fieldValue);
+
     Blog createBlog(Blog blog, MultipartFile image) throws IOException;
 
     Blog updateBlog(Long id, Blog blog, MultipartFile image) throws IOException;

@@ -6,12 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
 @NoArgsConstructor
-//@AllArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
+@Entity
 @Table(name = "blogs")
 public class Blog {
     @Id
@@ -27,17 +26,16 @@ public class Blog {
     @Column(nullable = false, name = "image")
     private String image;
 
-    @Column(nullable = false, name = "major")
+    @Column(nullable = false, name = "field")
     private String field;
 
-    @Column(nullable = false, name = "dataTime")
-    private Date dateTime;
+    @Column(nullable = false, name = "dateTime")
+    private String dateTime;
 
-    public Blog(String name, String description, String image, String field) {
-        this.name = name;
-        this.description = description;
-        this.image = image;
-        this.field = field;
-        this.dateTime = new Date();
-    }
+//    public Blog(String name, String description, String image, String field) {
+//        this.name = name;
+//        this.description = description;
+//        this.image = image;
+//        this.field = field;
+//    }
 }
